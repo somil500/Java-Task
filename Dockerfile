@@ -1,25 +1,26 @@
-# Stage 1: Build the Spring Boot application
+# Stage 1: Build the Spring Boot JAR
 FROM eclipse-temurin:17-jdk-focal AS builder
 
 WORKDIR /app
 
-# Copy Maven project files
+# Copy Maven files
 COPY pom.xml .
+
+# Copy source code
 COPY src ./src
 
-# Build the Spring Boot application JAR (skip tests to speed up)
+# Package application
 RUN mvn clean package -DskipTests
 
-# Stage 2: Create the lightweight runtime image
+# Stage 2: Runtime
 FROM eclipse-temurin:17-jre-focal
 
 WORKDIR /app
 
-# Copy the JAR built in the builder stage
+# Copy the built jar
 COPY --from=builder /app/target/*.jar app.jar
 
-# Expose the port your app listens on
+# Expose the port (change if needed)
 EXPOSE 9090
 
-# Run the Spring Boot application
 ENTRYPOINT ["java", "-jar", "app.jar"]
